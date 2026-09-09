@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GESNRI — GeoEnergy Space Nexus Research Institute</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-950:#0a0e18;
+    --navy-900:#10172a;
+    --navy-800:#1a2440;
+    --navy-700:#26315291;
+    --line: rgba(238,241,246,0.10);
+    --orange:#e8792b;
+    --green:#3fa672;
+    --gold:#f2c14e;
+    --paper:#eef1f6;
+    --paper-dim:#96a1ba;
+    --paper-dimmer:#69738f;
+    --radius: 3px;
+    --serif-line: 1.55;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--navy-950);
+    color:var(--paper);
+    font-family:'Inter', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  h1,h2,h3,.disp{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+  .mono{font-family:'IBM Plex Mono', monospace;}
+  a{color:inherit;}
+  button{font-family:inherit;}
+  p{max-width:62ch; line-height:1.6; color:var(--paper-dim);}
+  ::selection{background:var(--gold); color:var(--navy-950);}
+  :focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+
+  /* ---------- shell ---------- */
+  .skip-link{position:absolute; left:-999px; top:0; background:var(--gold); color:var(--navy-950); padding:8px 14px; z-index:200;}
+  .skip-link:focus{left:12px; top:12px;}
+
+  header.topbar{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px clamp(20px,4vw,56px);
+    background:rgba(10,14,24,0.86);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .wordmark{display:flex; align-items:center; gap:10px; cursor:pointer; background:none; border:none; color:var(--paper); padding:0;}
+  .wordmark .mark{
+    width:30px; height:30px; border-radius:50%;
+    background:conic-gradient(var(--orange) 0 33%, var(--green) 33% 66%, var(--gold) 66% 100%);
+    flex:none;
+  }
+  .wordmark .wm-text{display:flex; flex-direction:column; align-items:flex-start; line-height:1.1;}
+  .wordmark .wm-text b{font-family:'Space Grotesk'; font-size:15px; letter-spacing:0.02em;}
+  .wordmark .wm-text span{font-size:10px; color:var(--paper-dimmer); font-family:'IBM Plex Mono';}
+
+  nav.tabs{display:flex; gap:2px; background:var(--navy-900); border:1px solid var(--line); border-radius:999px; padding:4px;}
+  nav.tabs button{
+    background:none; border:none; color:var(--paper-dim); font-size:13px; font-family:'Inter'; font-weight:500;
+    padding:8px 16px; border-radius:999px; cursor:pointer; transition:background .15s, color .15s;
+  }
+  nav.tabs button:hover{color:var(--paper);}
+  nav.tabs button.active{background:var(--navy-800); color:var(--paper);}
+  .nav-toggle{display:none; background:none; border:1px solid var(--line); color:var(--paper); border-radius:4px; padding:8px 10px; cursor:pointer;}
+
+  main{padding-top:76px;}
+  .view{display:none; animation:rise .4s ease both;}
+  .view.active{display:block;}
+  @keyframes rise{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+  @media (prefers-reduced-motion: reduce){
+    .view{animation:none;}
+    html{scroll-behavior:auto;}
+  }
+
+  .wrap{max-width:1160px; margin:0 auto; padding:0 clamp(20px,4vw,56px);}
+  section{padding:88px 0;}
+  section.tight{padding:56px 0;}
+  .rule{border-top:1px solid var(--line);}
+
+  .kicker{font-family:'IBM Plex Mono'; font-size:12px; color:var(--paper-dimmer); margin-bottom:14px; display:flex; align-items:center; gap:10px;}
+  .kicker .dot{width:6px; height:6px; border-radius:50%; background:var(--green); box-shadow:0 0 0 3px rgba(63,166,114,0.18);}
+
+  /* ---------- hero (home) ---------- */
+  .hero{position:relative; overflow:hidden; padding:64px 0 40px;}
+  #starfield{position:absolute; inset:0; z-index:0; opacity:.9;}
+  .hero .wrap{position:relative; z-index:1; display:grid; grid-template-columns:1.25fr 0.9fr; gap:48px; align-items:end;}
+  .hero h1{font-size:clamp(34px, 5vw, 58px); line-height:1.04; max-width:14ch;}
+  .hero .lede{margin-top:22px; font-size:17px; max-width:46ch;}
+  .hero .coords{margin-top:34px; display:flex; gap:28px; flex-wrap:wrap;}
+  .coords div{font-family:'IBM Plex Mono'; font-size:12px; color:var(--paper-dimmer);}
+  .coords div b{display:block; color:var(--paper); font-size:14px; margin-bottom:2px; font-weight:500;}
+
+  .console{
+    background:var(--navy-900); border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px 20px 8px;
+  }
+  .console .c-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; font-family:'IBM Plex Mono'; font-size:11px; color:var(--paper-dimmer);}
+  .console .c-head .live{color:var(--green);}
+  .feed-row{display:flex; gap:12px; padding:10px 0; border-top:1px solid var(--line); font-size:13px;}
+  .feed-row:first-of-type{border-top:none;}
+  .feed-row time{font-family:'IBM Plex Mono'; font-size:11px; color:var(--paper-dimmer); flex:none; padding-top:2px;}
+  .feed-row p{margin:0; color:var(--paper); max-width:none;}
+  .pill{
+    display:inline-flex; align-items:center; gap:6px; font-family:'IBM Plex Mono'; font-size:10.5px;
+    padding:2px 8px; border-radius:999px; border:1px solid currentColor; flex:none; height:fit-content;
+  }
+  .pill.p1{color:var(--orange);}
+  .pill.p2{color:var(--green);}
+  .pill.p3{color:var(--gold);}
+
+  .cta-row{display:flex; gap:12px; margin-top:30px; flex-wrap:wrap;}
+  .btn{
+    font-family:'Inter'; font-weight:600; font-size:14px; padding:12px 22px; border-radius:4px; cursor:pointer;
+    border:1px solid transparent; transition:transform .12s ease, background .15s;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--paper); color:var(--navy-950); border-color:var(--paper);}
+  .btn-primary:hover{background:var(--gold); border-color:var(--gold);}
+  .btn-ghost{background:transparent; color:var(--paper); border-color:var(--line);}
+  .btn-ghost:hover{border-color:var(--paper-dim);}
+
+  /* ---------- pillars ---------- */
+  .pillar-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); margin-top:34px;}
+  .pillar-card{background:var(--navy-950); padding:28px 26px; position:relative;}
+  .pillar-card .num{font-family:'IBM Plex Mono'; font-size:12px; color:var(--paper-dimmer);}
+  .pillar-card h3{font-size:19px; margin:14px 0 10px;}
+  .pillar-card p{font-size:14px; margin:0;}
+  .pillar-card .bar{position:absolute; left:0; top:0; bottom:0; width:3px;}
+  .pillar-card.p1 .bar{background:var(--orange);}
+  .pillar-card.p2 .bar{background:var(--green);}
+  .pillar-card.p3 .bar{background:var(--gold);}
+
+  h2.section-title{font-size:clamp(24px,3vw,32px); max-width:20ch;}
+  .section-head{display:flex; justify-content:space-between; align-items:flex-end; gap:24px; flex-wrap:wrap; margin-bottom:34px;}
+
+  /* ---------- filters ---------- */
+  .filters{display:flex; gap:8px; flex-wrap:wrap;}
+  .chip{
+    font-family:'IBM Plex Mono'; font-size:12px; padding:7px 14px; border-radius:999px; border:1px solid var(--line);
+    background:var(--navy-900); color:var(--paper-dim); cursor:pointer;
+  }
+  .chip.active{color:var(--navy-950); background:var(--paper); border-color:var(--paper);}
+
+  /* ---------- research cards ---------- */
+  .rlist{display:flex; flex-direction:column; margin-top:8px;}
+  .rcard{
+    display:grid; grid-template-columns:100px 1fr auto; gap:22px; align-items:start;
+    padding:26px 0; border-top:1px solid var(--line);
+  }
+  .rlist .rcard:last-child{border-bottom:1px solid var(--line);}
+  .rcard .rc-date{font-family:'IBM Plex Mono'; font-size:12px; color:var(--paper-dimmer); padding-top:3px;}
+  .rcard h3{font-size:17px; margin-bottom:8px;}
+  .rcard p{font-size:14px; margin:0 0 12px;}
+  .rcard .meta{display:flex; gap:14px; flex-wrap:wrap; font-family:'IBM Plex Mono'; font-size:11px; color:var(--paper-dimmer);}
+  .rcard .go{align-self:center; font-size:13px; font-weight:600; white-space:nowrap;}
+  .rcard[hidden]{display:none;}
+
+  .status{display:inline-flex; align-items:center; gap:6px; font-family:'IBM Plex Mono'; font-size:11px; color:var(--paper-dim);}
+  .status i{width:6px; height:6px; border-radius:50%; background:var(--paper-dimmer); display:inline-block;}
+  .status.active i{background:var(--green);}
+  .status.review i{background:var(--gold);}
+  .status.field i{background:var(--orange);}
+
+  .progress{height:3px; background:var(--navy-800); border-radius:2px; margin-top:14px; overflow:hidden;}
+  .progress i{display:block; height:100%; background:var(--green);}
+
+  /* ---------- get involved ---------- */
+  .role-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin:34px 0 48px;}
+  .role-card{
+    background:var(--navy-900); border:1px solid var(--line); border-radius:6px; padding:26px;
+    text-align:left; cursor:pointer; color:var(--paper); transition:border-color .15s;
+  }
+  .role-card:hover, .role-card.selected{border-color:var(--paper-dim);}
+  .role-card .rc-mark{width:32px; height:32px; border-radius:50%; margin-bottom:16px;}
+  .role-card.researcher .rc-mark{background:var(--orange);}
+  .role-card.partner .rc-mark{background:var(--green);}
+  .role-card.client .rc-mark{background:var(--gold);}
+  .role-card h3{font-size:16px; margin-bottom:6px;}
+  .role-card p{font-size:13px; margin:0;}
+
+  form{max-width:640px;}
+  .form-panel{display:none; padding-top:8px; border-top:1px solid var(--line);}
+  .form-panel.active{display:block;}
+  .field{margin-bottom:18px;}
+  .field label{display:block; font-size:13px; font-weight:500; margin-bottom:7px;}
+  .field .hint{font-size:12px; color:var(--paper-dimmer); margin-top:6px; font-family:'IBM Plex Mono';}
+  input, select, textarea{
+    width:100%; background:var(--navy-900); border:1px solid var(--line); color:var(--paper);
+    padding:11px 13px; border-radius:4px; font-family:'Inter'; font-size:14px;
+  }
+  input:focus, select:focus, textarea:focus{border-color:var(--paper-dim);}
+  textarea{resize:vertical; min-height:96px;}
+  .field-row{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .confirm{
+    display:none; background:var(--navy-900); border:1px solid var(--green); border-radius:6px;
+    padding:20px 22px; margin-top:20px; font-size:14px;
+  }
+  .confirm.show{display:block;}
+  .confirm .mono{color:var(--green); font-size:12px; display:block; margin-bottom:6px;}
+
+  /* open positions */
+  .position{border:1px solid var(--line); border-radius:6px; padding:22px 24px; margin-bottom:14px; background:var(--navy-900);}
+  .position .p-head{display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; align-items:baseline;}
+  .position h3{font-size:16px;}
+  .position .p-meta{font-family:'IBM Plex Mono'; font-size:11px; color:var(--paper-dimmer);}
+  .position p{font-size:13.5px; margin:10px 0 0;}
+
+  /* news */
+  .news-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); margin-top:8px;}
+  .news-card{background:var(--navy-950); padding:24px; display:flex; flex-direction:column; gap:12px;}
+  .news-card .n-type{font-family:'IBM Plex Mono'; font-size:11px; color:var(--paper-dimmer);}
+  .news-card h3{font-size:16px;}
+  .news-card p{font-size:13.5px; margin:0;}
+  .news-card[hidden]{display:none;}
+
+  footer{border-top:1px solid var(--line); padding:44px 0 60px; margin-top:20px;}
+  .footer-grid{display:flex; justify-content:space-between; gap:30px; flex-wrap:wrap;}
+  .footer-grid p{font-size:13px;}
+  .footer-cols{display:flex; gap:56px; flex-wrap:wrap;}
+  .footer-col b{font-size:13px; display:block; margin-bottom:10px;}
+  .footer-col a{display:block; font-size:13px; color:var(--paper-dim); text-decoration:none; margin-bottom:8px;}
+  .footer-col a:hover{color:var(--paper);}
+  .fine{margin-top:40px; font-family:'IBM Plex Mono'; font-size:11px; color:var(--paper-dimmer);}
+
+  @media (max-width: 880px){
+    nav.tabs{display:none; position:absolute; top:64px; right:20px; left:20px; flex-direction:column; background:var(--navy-900); border-radius:8px;}
+    nav.tabs.open{display:flex;}
+    nav.tabs button{text-align:left;}
+    .nav-toggle{display:block;}
+    .hero .wrap{grid-template-columns:1fr;}
+    .pillar-grid, .role-grid, .news-grid{grid-template-columns:1fr;}
+    .rcard{grid-template-columns:1fr; gap:10px;}
+    .field-row{grid-template-columns:1fr;}
+    .footer-grid{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to content</a>
+
+<header class="topbar">
+  <button class="wordmark" data-nav="home" aria-label="GESNRI home">
+    <span class="mark" aria-hidden="true"></span>
+    <span class="wm-text"><b>GESNRI</b><span>Addis Ababa · est. institute</span></span>
+  </button>
+  <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+  <nav class="tabs" id="tabs">
+    <button data-nav="home" class="active">Home</button>
+    <button data-nav="published">Published research</button>
+    <button data-nav="ongoing">Ongoing research</button>
+    <button data-nav="involved">Get involved</button>
+    <button data-nav="news">News</button>
+  </nav>
+</header>
+
+<main id="main">
+
+  <!-- ============ HOME ============ -->
+  <div class="view active" data-view="home">
+    <section class="hero">
+      <canvas id="starfield"></canvas>
+      <div class="wrap">
+        <div>
+          <div class="kicker"><span class="dot"></span>research institute · space, climate &amp; energy systems</div>
+          <h1>Research built for how space, climate, and energy actually intersect.</h1>
+          <p class="lede">GESNRI is an independent research institute based in Addis Ababa, working across three pillars — space and spatial data, humanitarian and climate energy systems, and space exploration — for researchers, partner organizations, and the communities our work reaches.</p>
+          <div class="cta-row">
+            <button class="btn btn-primary" data-nav="published">Browse published research</button>
+            <button class="btn btn-ghost" data-nav="involved">Get involved</button>
+          </div>
+          <div class="coords">
+            <div><b>9.0192° N, 38.7525° E</b>headquarters, Addis Ababa</div>
+            <div><b>3</b>research pillars</div>
+            <div><b>12</b>active projects</div>
+          </div>
+        </div>
+        <div class="console">
+          <div class="c-head"><span>signal_feed.log</span><span class="live">● live</span></div>
+          <div class="feed-row">
+            <time>09.09</time>
+            <span class="pill p2">P-II</span>
+            <p>Drought-response model for the Rift Valley enters field validation.</p>
+          </div>
+          <div class="feed-row">
+            <time>09.04</time>
+            <span class="pill p1">P-I</span>
+            <p>New satellite land-cover dataset published for the Horn of Africa.</p>
+          </div>
+          <div class="feed-row">
+            <time>08.27</time>
+            <span class="pill p3">P-III</span>
+            <p>Suborbital payload partnership announced with a regional university.</p>
+          </div>
+          <div class="feed-row">
+            <time>08.19</time>
+            <span class="pill p2">P-II</span>
+            <p>Applications open for two field-research spots, Q4 cohort.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="tight rule">
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="kicker"><span class="dot" style="background:var(--gold)"></span>how the institute is organized</div>
+            <h2 class="section-title">Three pillars, one institute</h2>
+          </div>
+          <p>Every project, publication, and partnership at GESNRI sits under one of three pillars — used throughout the site to help you find work in your area.</p>
+        </div>
+        <div class="pillar-grid">
+          <div class="pillar-card p1"><span class="bar"></span>
+            <div class="num">Pillar I</div>
+            <h3>Space &amp; spatial data</h3>
+            <p>Earth observation, satellite imagery, and geospatial analysis for land, water, and infrastructure decisions.</p>
+          </div>
+          <div class="pillar-card p2"><span class="bar"></span>
+            <div class="num">Pillar II</div>
+            <h3>Humanitarian, climate &amp; energy</h3>
+            <p>Climate intelligence and sustainable-energy research applied to humanitarian and development needs.</p>
+          </div>
+          <div class="pillar-card p3"><span class="bar"></span>
+            <div class="num">Pillar III</div>
+            <h3>Space exploration</h3>
+            <p>Exploration science, mission concepts, and payload research pursued with regional and international partners.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ PUBLISHED RESEARCH ============ -->
+  <div class="view" data-view="published">
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="kicker"><span class="dot"></span>published research hub</div>
+            <h2 class="section-title">Completed work, open for review</h2>
+          </div>
+          <div class="filters" data-filter-group="published">
+            <button class="chip active" data-filter="all">All</button>
+            <button class="chip" data-filter="p1">Space &amp; spatial data</button>
+            <button class="chip" data-filter="p2">Humanitarian, climate &amp; energy</button>
+            <button class="chip" data-filter="p3">Space exploration</button>
+          </div>
+        </div>
+
+        <div class="rlist" id="publishedList">
+          <article class="rcard" data-pillar="p1">
+            <div class="rc-date mono">2026<br>Jul</div>
+            <div>
+              <h3>Mapping informal settlement growth from ten years of satellite imagery</h3>
+              <p>A land-cover classification method for tracking urban expansion in fast-growing East African cities, built for use by municipal planners.</p>
+              <div class="meta"><span class="pill p1">Pillar I</span><span>Lead: T. Bekele</span><span>Peer-reviewed</span></div>
+            </div>
+            <div class="go">Read paper</div>
+          </article>
+
+          <article class="rcard" data-pillar="p2">
+            <div class="rc-date mono">2026<br>May</div>
+            <div>
+              <h3>Solar micro-grid viability across pastoralist regions</h3>
+              <p>Field-tested cost and reliability model for off-grid solar deployment in low-density, mobile-population areas.</p>
+              <div class="meta"><span class="pill p2">Pillar II</span><span>Lead: A. Girma</span><span>Field study</span></div>
+            </div>
+            <div class="go">Read paper</div>
+          </article>
+
+          <article class="rcard" data-pillar="p1">
+            <div class="rc-date mono">2026<br>Mar</div>
+            <div>
+              <h3>A shared spatial-data standard for humanitarian response teams</h3>
+              <p>Interoperability guidelines for geospatial datasets exchanged between research institutes and relief organizations.</p>
+              <div class="meta"><span class="pill p1">Pillar I</span><span>Lead: S. Haile</span><span>Working paper</span></div>
+            </div>
+            <div class="go">Read paper</div>
+          </article>
+
+          <article class="rcard" data-pillar="p3">
+            <div class="rc-date mono">2025<br>Nov</div>
+            <div>
+              <h3>Low-cost payload design for regional CubeSat programs</h3>
+              <p>A modular payload framework aimed at universities building their first satellite missions.</p>
+              <div class="meta"><span class="pill p3">Pillar III</span><span>Lead: D. Mulu</span><span>Peer-reviewed</span></div>
+            </div>
+            <div class="go">Read paper</div>
+          </article>
+
+          <article class="rcard" data-pillar="p2">
+            <div class="rc-date mono">2025<br>Sep</div>
+            <div>
+              <h3>Early-warning indicators for drought in the Rift Valley</h3>
+              <p>A composite index combining rainfall anomaly, vegetation, and reservoir data for early humanitarian response.</p>
+              <div class="meta"><span class="pill p2">Pillar II</span><span>Lead: A. Girma</span><span>Peer-reviewed</span></div>
+            </div>
+            <div class="go">Read paper</div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ ONGOING RESEARCH ============ -->
+  <div class="view" data-view="ongoing">
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="kicker"><span class="dot"></span>ongoing research hub</div>
+            <h2 class="section-title">Active projects, in progress</h2>
+          </div>
+          <div class="filters" data-filter-group="ongoing">
+            <button class="chip active" data-filter="all">All</button>
+            <button class="chip" data-filter="p1">Space &amp; spatial data</button>
+            <button class="chip" data-filter="p2">Humanitarian, climate &amp; energy</button>
+            <button class="chip" data-filter="p3">Space exploration</button>
+          </div>
+        </div>
+
+        <div class="rlist" id="ongoingList">
+          <article class="rcard" data-pillar="p2">
+            <div class="rc-date mono">started<br>Jun '26</div>
+            <div>
+              <h3>Drought-response model for the Rift Valley</h3>
+              <p>Extending the early-warning index into a field-deployable tool for regional response teams.</p>
+              <div class="meta"><span class="pill p2">Pillar II</span><span class="status field"><i></i>field work</span><span>Est. completion: Q1 2027</span></div>
+              <div class="progress"><i style="width:64%"></i></div>
+            </div>
+            <div class="go">Project brief</div>
+          </article>
+
+          <article class="rcard" data-pillar="p1">
+            <div class="rc-date mono">started<br>Apr '26</div>
+            <div>
+              <h3>Horn of Africa land-cover dataset, 2026 edition</h3>
+              <p>Annual refresh of the regional land-cover dataset with improved classification of seasonal water bodies.</p>
+              <div class="meta"><span class="pill p1">Pillar I</span><span class="status active"><i></i>analysis</span><span>Est. completion: Nov 2026</span></div>
+              <div class="progress"><i style="width:80%"></i></div>
+            </div>
+            <div class="go">Project brief</div>
+          </article>
+
+          <article class="rcard" data-pillar="p3">
+            <div class="rc-date mono">started<br>Feb '26</div>
+            <div>
+              <h3>Suborbital payload partnership, phase II</h3>
+              <p>Joint payload integration work with a regional university ahead of a planned 2027 test flight.</p>
+              <div class="meta"><span class="pill p3">Pillar III</span><span class="status review"><i></i>review</span><span>Est. completion: Mar 2027</span></div>
+              <div class="progress"><i style="width:40%; background:var(--gold)"></i></div>
+            </div>
+            <div class="go">Project brief</div>
+          </article>
+
+          <article class="rcard" data-pillar="p2">
+            <div class="rc-date mono">started<br>Jan '26</div>
+            <div>
+              <h3>Micro-grid reliability monitoring network</h3>
+              <p>Instrumenting existing pastoralist-region micro-grids to build a longitudinal reliability dataset.</p>
+              <div class="meta"><span class="pill p2">Pillar II</span><span class="status active"><i></i>data collection</span><span>Est. completion: Aug 2027</span></div>
+              <div class="progress"><i style="width:28%"></i></div>
+            </div>
+            <div class="go">Project brief</div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ GET INVOLVED ============ -->
+  <div class="view" data-view="involved">
+    <section>
+      <div class="wrap">
+        <div class="kicker"><span class="dot"></span>accounts &amp; access</div>
+        <h2 class="section-title">Tell us which best describes you</h2>
+        <p style="margin-top:12px;">Each account type gets access to different parts of the institute — pick one to start a sign-up, or scroll down to apply for an open researcher position.</p>
+
+        <div class="role-grid">
+          <button class="role-card researcher" data-role="researcher">
+            <span class="rc-mark"></span>
+            <h3>Researcher</h3>
+            <p>Join a project team, submit findings, and access working data across all three pillars.</p>
+          </button>
+          <button class="role-card partner" data-role="partner">
+            <span class="rc-mark"></span>
+            <h3>Partner organization</h3>
+            <p>Propose or support a joint research, funding, or field-implementation partnership.</p>
+          </button>
+          <button class="role-card client" data-role="client">
+            <span class="rc-mark"></span>
+            <h3>Client</h3>
+            <p>Request access to published research, datasets, or advisory work for your organization.</p>
+          </button>
+        </div>
+
+        <!-- Researcher form -->
+        <div class="form-panel" data-panel="researcher">
+          <h3 style="font-size:18px; margin-bottom:20px;">Researcher sign-up</h3>
+          <form data-form="researcher">
+            <div class="field-row">
+              <div class="field"><label for="r-name">Full name</label><input id="r-name" required></div>
+              <div class="field"><label for="r-email">Email</label><input id="r-email" type="email" required></div>
+            </div>
+            <div class="field"><label for="r-field">Field or discipline</label><input id="r-field" placeholder="e.g. remote sensing, energy systems"></div>
+            <div class="field"><label for="r-pillar">Pillar of interest</label>
+              <select id="r-pillar">
+                <option>Space &amp; spatial data</option>
+                <option>Humanitarian, climate &amp; energy</option>
+                <option>Space exploration</option>
+                <option>Not sure yet</option>
+              </select>
+            </div>
+            <div class="field"><label for="r-cv">Background &amp; relevant experience</label><textarea id="r-cv" placeholder="A few sentences on your research background, or a link to your CV"></textarea></div>
+            <button class="btn btn-primary" type="submit">Create researcher account</button>
+            <div class="hint">Submissions route to the research coordination team for review.</div>
+          </form>
+          <div class="confirm" data-confirm="researcher"><span class="mono">submitted</span>Thanks — your researcher sign-up has been received. We'll follow up by email once it's reviewed.</div>
+        </div>
+
+        <!-- Partner form -->
+        <div class="form-panel" data-panel="partner">
+          <h3 style="font-size:18px; margin-bottom:20px;">Partnership inquiry</h3>
+          <form data-form="partner">
+            <div class="field-row">
+              <div class="field"><label for="p-org">Organization name</label><input id="p-org" required></div>
+              <div class="field"><label for="p-email">Contact email</label><input id="p-email" type="email" required></div>
+            </div>
+            <div class="field"><label for="p-type">Type of partnership</label>
+              <select id="p-type">
+                <option>Joint research</option>
+                <option>Funding or grant</option>
+                <option>Field implementation</option>
+                <option>Data sharing</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field"><label for="p-note">What you're looking to do together</label><textarea id="p-note" placeholder="A short description of the proposed partnership"></textarea></div>
+            <button class="btn btn-primary" type="submit">Submit inquiry</button>
+            <div class="hint">Partnership inquiries are reviewed by the institute's leadership team.</div>
+          </form>
+          <div class="confirm" data-confirm="partner"><span class="mono">submitted</span>Thanks — your partnership inquiry has been received. We'll be in touch to discuss next steps.</div>
+        </div>
+
+        <!-- Client form -->
+        <div class="form-panel" data-panel="client">
+          <h3 style="font-size:18px; margin-bottom:20px;">Client sign-up</h3>
+          <form data-form="client">
+            <div class="field-row">
+              <div class="field"><label for="c-name">Name or organization</label><input id="c-name" required></div>
+              <div class="field"><label for="c-email">Email</label><input id="c-email" type="email" required></div>
+            </div>
+            <div class="field"><label for="c-need">What you're seeking access to</label><textarea id="c-need" placeholder="e.g. a specific dataset, published research, or advisory support"></textarea></div>
+            <button class="btn btn-primary" type="submit">Create client account</button>
+            <div class="hint">You'll receive access details by email once your account is set up.</div>
+          </form>
+          <div class="confirm" data-confirm="client"><span class="mono">submitted</span>Thanks — your client sign-up has been received. We'll email you with access details.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="rule">
+      <div class="wrap">
+        <div class="kicker"><span class="dot" style="background:var(--orange)"></span>open researcher positions</div>
+        <h2 class="section-title">Apply for a new researcher spot</h2>
+        <p style="margin-top:12px; margin-bottom:30px;">Current openings across the three pillars. Applications are reviewed on a rolling basis.</p>
+
+        <div class="position">
+          <div class="p-head"><h3>Field researcher — climate &amp; energy systems</h3><span class="p-meta">Pillar II · Addis Ababa / field-based</span></div>
+          <p>Support data collection for the drought-response and micro-grid monitoring projects, with regular field travel.</p>
+        </div>
+        <div class="position">
+          <div class="p-head"><h3>Geospatial analyst</h3><span class="p-meta">Pillar I · Addis Ababa</span></div>
+          <p>Work on the Horn of Africa land-cover dataset and related classification methods.</p>
+        </div>
+        <div class="position">
+          <div class="p-head"><h3>Exploration research assistant</h3><span class="p-meta">Pillar III · Addis Ababa</span></div>
+          <p>Support payload integration and documentation for the suborbital partnership project.</p>
+        </div>
+
+        <h3 style="font-size:18px; margin:36px 0 20px;">Application</h3>
+        <form data-form="apply">
+          <div class="field-row">
+            <div class="field"><label for="a-name">Full name</label><input id="a-name" required></div>
+            <div class="field"><label for="a-email">Email</label><input id="a-email" type="email" required></div>
+          </div>
+          <div class="field"><label for="a-position">Position</label>
+            <select id="a-position">
+              <option>Field researcher — climate &amp; energy systems</option>
+              <option>Geospatial analyst</option>
+              <option>Exploration research assistant</option>
+              <option>Not listed — open application</option>
+            </select>
+          </div>
+          <div class="field"><label for="a-why">Why this position</label><textarea id="a-why" placeholder="A short statement of interest, and a link to your CV or portfolio"></textarea></div>
+          <button class="btn btn-primary" type="submit">Submit application</button>
+        </form>
+        <div class="confirm" data-confirm="apply"><span class="mono">submitted</span>Thanks — your application has been received. The relevant pillar lead will review it and follow up by email.</div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ NEWS ============ -->
+  <div class="view" data-view="news">
+    <section>
+      <div class="wrap">
+        <div class="section-head">
+          <div>
+            <div class="kicker"><span class="dot"></span>news &amp; updates</div>
+            <h2 class="section-title">What's happening at the institute</h2>
+          </div>
+          <div class="filters" data-filter-group="news">
+            <button class="chip active" data-filter="all">All</button>
+            <button class="chip" data-filter="publication">Publications</button>
+            <button class="chip" data-filter="partnership">Partnerships</button>
+            <button class="chip" data-filter="announcement">Announcements</button>
+          </div>
+        </div>
+
+        <div class="news-grid" id="newsList">
+          <article class="news-card" data-type="partnership">
+            <span class="n-type mono">2026.08.27 · partnership</span>
+            <h3>Suborbital payload partnership announced</h3>
+            <p>GESNRI joins a regional university on payload integration ahead of a planned 2027 test flight.</p>
+          </article>
+          <article class="news-card" data-type="announcement">
+            <span class="n-type mono">2026.08.19 · announcement</span>
+            <h3>Applications open for Q4 researcher cohort</h3>
+            <p>Two field-research spots are open under the humanitarian, climate &amp; energy pillar.</p>
+          </article>
+          <article class="news-card" data-type="publication">
+            <span class="n-type mono">2026.07.14 · publication</span>
+            <h3>New land-cover dataset released</h3>
+            <p>An updated satellite land-cover dataset for the Horn of Africa is now available to researchers and clients.</p>
+          </article>
+          <article class="news-card" data-type="publication">
+            <span class="n-type mono">2026.05.02 · publication</span>
+            <h3>Solar micro-grid study published</h3>
+            <p>A field-tested viability model for off-grid solar in pastoralist regions is now published.</p>
+          </article>
+          <article class="news-card" data-type="announcement">
+            <span class="n-type mono">2026.03.30 · announcement</span>
+            <h3>Institute adopts a shared spatial-data standard</h3>
+            <p>New interoperability guidelines aim to ease data exchange with humanitarian partners.</p>
+          </article>
+          <article class="news-card" data-type="partnership">
+            <span class="n-type mono">2026.01.11 · partnership</span>
+            <h3>Micro-grid monitoring network launched with local partners</h3>
+            <p>Instrumentation begins across the first set of pastoralist-region micro-grids.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div style="max-width:320px;">
+        <div class="wordmark" style="margin-bottom:14px;"><span class="mark"></span><b class="disp" style="font-size:15px;">GESNRI</b></div>
+        <p>GeoEnergy Space Nexus Research Institute, Addis Ababa, Ethiopia.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <b>Research</b>
+          <a data-nav="published">Published research</a>
+          <a data-nav="ongoing">Ongoing research</a>
+        </div>
+        <div class="footer-col">
+          <b>Get involved</b>
+          <a data-nav="involved">Sign up</a>
+          <a data-nav="involved">Open positions</a>
+        </div>
+        <div class="footer-col">
+          <b>Institute</b>
+          <a data-nav="news">News</a>
+          <a href="mailto:charlesdlual@gmail.com">Contact</a>
+        </div>
+      </div>
+    </div>
+    <div class="fine">© 2026 GESNRI — GeoEnergy Space Nexus Research Institute. Pillar I orange · Pillar II green · Pillar III gold.</div>
+  </div>
+</footer>
+
+<script>
+  // ---------- navigation ----------
+  const views = document.querySelectorAll('.view');
+  const navButtons = document.querySelectorAll('[data-nav]');
+  function goTo(name){
+    views.forEach(v => v.classList.toggle('active', v.dataset.view === name));
+    document.querySelectorAll('nav.tabs button').forEach(b => b.classList.toggle('active', b.dataset.nav === name));
+    document.getElementById('tabs').classList.remove('open');
+    window.scrollTo({top:0, behavior:'auto'});
+  }
+  navButtons.forEach(btn => btn.addEventListener('click', () => goTo(btn.dataset.nav)));
+
+  document.getElementById('navToggle').addEventListener('click', (e) => {
+    const tabs = document.getElementById('tabs');
+    const open = tabs.classList.toggle('open');
+    e.currentTarget.setAttribute('aria-expanded', open);
+  });
+
+  // ---------- filters (published / ongoing / news) ----------
+  document.querySelectorAll('.filters').forEach(group => {
+    const listId = { published:'publishedList', ongoing:'ongoingList', news:'newsList' }[group.dataset.filterGroup];
+    const list = document.getElementById(listId);
+    group.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        group.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        const f = chip.dataset.filter;
+        list.querySelectorAll('[data-pillar], [data-type]').forEach(card => {
+          const key = card.dataset.pillar || card.dataset.type;
+          card.hidden = f !== 'all' && key !== f;
+        });
+      });
+    });
+  });
+
+  // ---------- role picker + forms ----------
+  const roleCards = document.querySelectorAll('.role-card');
+  const panels = document.querySelectorAll('.form-panel');
+  roleCards.forEach(card => {
+    card.addEventListener('click', () => {
+      roleCards.forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      panels.forEach(p => p.classList.toggle('active', p.dataset.panel === card.dataset.role));
+      panels.forEach(p => { const c = document.querySelector(`[data-confirm="${p.dataset.panel}"]`); if(c) c.classList.remove('show'); });
+    });
+  });
+
+  document.querySelectorAll('form[data-form]').forEach(form => {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = form.dataset.form;
+      const confirm = document.querySelector(`[data-confirm="${name}"]`);
+      if (confirm) confirm.classList.add('show');
+      form.reset();
+      // NOTE for integration: wire this submit handler to your form backend
+      // of choice (e.g. Formspree, Getform) by posting the form data instead
+      // of this local confirmation message.
+    });
+  });
+
+  // ---------- starfield canvas ----------
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+  function sizeCanvas(){
+    const hero = canvas.closest('.hero');
+    canvas.width = hero.offsetWidth;
+    canvas.height = hero.offsetHeight;
+    const count = Math.floor((canvas.width * canvas.height) / 9000);
+    stars = Array.from({length: count}, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.2 + 0.2,
+      a: Math.random() * 0.6 + 0.2
+    }));
+  }
+  function drawStars(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    stars.forEach(s => {
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(238,241,246,${s.a})`;
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fill();
+    });
+  }
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  sizeCanvas();
+  drawStars();
+  window.addEventListener('resize', () => { sizeCanvas(); drawStars(); });
+</script>
+</body>
+</html>
